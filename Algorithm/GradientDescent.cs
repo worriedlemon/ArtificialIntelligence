@@ -18,7 +18,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
 
         public string GetFunctionOptimizationResultString()
         {
-            return $"colors: f({x:F3}, {y:F3}) = {fr:F3}";
+            return $"Found solution: f({x:F3}, {y:F3}) = {fr:F3}";
         }
 
         public void SolveFunctionOptimizationProblem(Function f)
