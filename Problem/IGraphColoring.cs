@@ -2,7 +2,7 @@
 {
     public interface IGraphColoring
     {
-        public void SolvegColoringProblem(Graph f);
+        public void SolveGraphColoringProblem(Graph g);
         public string GetGraphColoringResultString();
     }
 }

@@ -33,7 +33,7 @@
             algorithmComboBox = new ComboBox();
             taskLabel = new Label();
             algLabel = new Label();
-            runButton = new Button();
+            runStopButton = new Button();
             optionsPanel = new GroupBox();
             mainPanel = new PictureBox();
             timeLabel = new Label();
@@ -101,17 +101,17 @@
             algLabel.Text = "Algorithm:";
             algLabel.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // runButton
+            // runStopButton
             // 
-            runButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            runButton.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            runButton.Location = new Point(551, 550);
-            runButton.Name = "runButton";
-            runButton.Size = new Size(299, 51);
-            runButton.TabIndex = 4;
-            runButton.Text = "Run";
-            runButton.UseVisualStyleBackColor = true;
-            runButton.Click += OnRun;
+            runStopButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            runStopButton.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            runStopButton.Location = new Point(551, 550);
+            runStopButton.Name = "runStopButton";
+            runStopButton.Size = new Size(299, 51);
+            runStopButton.TabIndex = 4;
+            runStopButton.Text = "Run";
+            runStopButton.UseVisualStyleBackColor = true;
+            runStopButton.Click += OnRun;
             // 
             // optionsPanel
             // 
@@ -151,7 +151,6 @@
             drawDelay.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             drawDelay.Location = new Point(740, 516);
             drawDelay.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
-            drawDelay.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
             drawDelay.Name = "drawDelay";
             drawDelay.Size = new Size(110, 27);
             drawDelay.TabIndex = 8;
@@ -167,7 +166,7 @@
             Controls.Add(timeLabel);
             Controls.Add(mainPanel);
             Controls.Add(optionsPanel);
-            Controls.Add(runButton);
+            Controls.Add(runStopButton);
             Controls.Add(tableLayout);
             Name = "MainForm";
             Text = "MainForm";
@@ -184,7 +183,7 @@
         private Label taskLabel;
         private Label algLabel;
         private ComboBox taskComboBox;
-        private Button runButton;
+        private Button runStopButton;
         private ComboBox algorithmComboBox;
         private GroupBox optionsPanel;
         private PictureBox mainPanel;

@@ -203,11 +203,12 @@ namespace ArtificialIntelligenceIHW
 
         public void ColorVertexes(in Graphics g, List<int> colorCodes)
         {
-            Random rnd = new(0);
+            var uniqueColors = colorCodes.Distinct().ToList();
+            List<double> hues = Utility.ContrastHues(uniqueColors.Count);
             Dictionary<int, SolidBrush> codeToBrush = new();
-            foreach (int colorCode in colorCodes.Distinct())
+            for (int c = 0; c < uniqueColors.Count; ++c)
             {
-                codeToBrush.Add(colorCode, new(Color.FromArgb(rnd.Next())));
+                codeToBrush.Add(uniqueColors[c], new(Utility.HueToRgb(hues[c])));
             }
 
             for (int i = 0; i < colorCodes.Count; i++)
@@ -215,7 +216,7 @@ namespace ArtificialIntelligenceIHW
                 DisplayableVertex vertex = Vertices[i];
                 int tempX = vertex.X - vertexSize / 2;
                 int tempY = vertex.Y - vertexSize / 2;
-                g.FillEllipse(codeToBrush[i], new Rectangle(tempX, tempY, vertexSize, vertexSize));
+                g.FillEllipse(codeToBrush[colorCodes[i]], new Rectangle(tempX, tempY, vertexSize, vertexSize));
             }
         }
 

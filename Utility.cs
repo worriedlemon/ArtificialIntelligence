@@ -15,6 +15,46 @@ namespace ArtificialIntelligenceIHW
             }
             return newText.ToString();
         }
+
+        public static Color HueToRgb(double h)
+        {
+            int t = Convert.ToInt32(255 * Math.IEEERemainder(h / 60.0, 1.0));
+            if (t < 0) t += 255;
+
+            return (Convert.ToInt32(Math.Floor(h / 60)) % 6) switch
+            {
+                0 => Color.FromArgb(255, 255, t, 0),
+                1 => Color.FromArgb(255, 255 - t, 255, 0),
+                2 => Color.FromArgb(255, 0, 255, t),
+                3 => Color.FromArgb(255, 0, 255 - t, 255),
+                4 => Color.FromArgb(255, t, 0, 255),
+                _ => Color.FromArgb(255, 255, 0, 255 - t)
+            };
+        }
+
+        public static List<double> ContrastHues(int count)
+        {
+            List<double> hues = [0, 120, 240];
+            double step = 120;
+            double c = 3;
+            double i = 0;
+
+            double last = 60;
+            while (hues.Count < count)
+            {
+                if (i == c)
+                {
+                    c *= 2;
+                    i = 0;
+                    last /= 2;
+                    step /= 2;
+                }
+
+                hues.Add(last + step * i);
+                ++i;
+            }
+            return hues;
+        }
     }
 
     public static class Plotter

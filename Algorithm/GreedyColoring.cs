@@ -9,7 +9,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
         private List<int> colors = new();
         int totalColors = 0;
 
-        public void SolvegColoringProblem(Graph g)
+        public void SolveGraphColoringProblem(Graph g)
         {
             // First create uncolored list except first vertex
             colors = Enumerable.Repeat(-1, g.VertexCount).ToList();
@@ -39,7 +39,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
 
             totalColors = colors.Distinct().Count();
 
-            OnUpdateGraphics(colors);
+            OnUpdateGraphics(colors, true);
         }
 
         public string GetGraphColoringResultString()

@@ -36,7 +36,7 @@ namespace ArtificialIntelligenceIHW.Problem
             this.g = g;
         }
 
-        public void Solve() => gc.SolvegColoringProblem(g);
+        public void Solve() => gc.SolveGraphColoringProblem(g);
 
         public string GetResults() => gc.GetGraphColoringResultString();
     }
@@ -60,15 +60,15 @@ namespace ArtificialIntelligenceIHW.Problem
     public class ProblemWrapperFactory
     {
         AbstractAlgorithm alg;
-        (Function f, Action<object>? upd) function;
-        (Graph g, Action<object>? upd) gLP;
-        (Graph g, Action<object>? upd) gColor;
+        (Function f, Action<object, bool>? upd) function;
+        (Graph g, Action<object, bool>? upd) gLP;
+        (Graph g, Action<object, bool>? upd) gColor;
 
         public ProblemWrapperFactory(
             AbstractAlgorithm alg,
-            (Function func, Action<object>? funcUpd) funcPair,
-            (Graph g, Action<object>? funcUpd) gLPPair,
-            (Graph g, Action<object>? funcUpd) gColorPair
+            (Function func, Action<object, bool>? funcUpd) funcPair,
+            (Graph g, Action<object, bool>? funcUpd) gLPPair,
+            (Graph g, Action<object, bool>? funcUpd) gColorPair
             )
         {
             this.alg = alg;

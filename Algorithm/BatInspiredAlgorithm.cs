@@ -8,12 +8,12 @@ namespace ArtificialIntelligenceIHW.Algorithm
     {
         [AlgorithmOption] public uint PopulationSize { get; set; } = 50;
         [AlgorithmOption] public uint MaxIterations { get; set; } = 100;
-        [AlgorithmOption] public double Loudness { get; set; } = 0.5;
+        [AlgorithmOption] public double Loudness { get; set; } = 0.75;
         [AlgorithmOption] public double LoudnessFade { get; set; } = 0.9;
-        [AlgorithmOption] public double PulseRate { get; set; } = 0.5;
+        [AlgorithmOption] public double PulseRate { get; set; } = 0.8;
         [AlgorithmOption] public double PulseRateFade { get; set; } = 0.9;
-        [AlgorithmOption] public double FrequencyMin { get; set; } = 0.0;
-        [AlgorithmOption] public double FrequencyMax { get; set; } = 2.0;
+        [AlgorithmOption] public double FrequencyMin { get; set; } = 0.5;
+        [AlgorithmOption] public double FrequencyMax { get; set; } = 3.0;
 
 
         private List<double> bestPosition = [ 0, 0 ];
@@ -36,6 +36,8 @@ namespace ArtificialIntelligenceIHW.Algorithm
                 Velocity = [0, 0];
                 Fitness = f.Evaluate(Position[0], Position[1]);
             }
+
+            public static explicit operator PointF(Bat b) => new((float)b.Position[0], (float)b.Position[1]);
         }
 
         public void SolveFunctionOptimizationProblem(Function f)
@@ -53,15 +55,10 @@ namespace ArtificialIntelligenceIHW.Algorithm
 
             bestValue = bats.MinBy(b => b.Fitness)!.Fitness;
 
-            List<PointF> BatsToPointf()
+            for (int i = 0; i < MaxIterations && !Stop; i++)
             {
-                return bats.Select(a => new PointF((float)a.Position[0], (float)a.Position[1])).ToList();
-            }
+                OnUpdateGraphics(bats.Select(a => (PointF)a).ToList());
 
-            OnUpdateGraphics(BatsToPointf());
-
-            for (int i = 0; i < MaxIterations; i++)
-            {
                 // Update frequencies in a specified range
                 foreach (var bat in bats)
                 {
@@ -95,9 +92,9 @@ namespace ArtificialIntelligenceIHW.Algorithm
                     bat.Loudness *= LoudnessFade;
                     bat.PulseRate = PulseRate * (1 - Math.Exp(-PulseRateFade * i));
                 }
-
-                OnUpdateGraphics(BatsToPointf());
             }
+
+            OnUpdateGraphics(bats.Select(a => (PointF)a).ToList(), true);
         }
 
         private void ApplySearch(Bat[] bats, Function f, Func<Bat, List<double>> generatePosition)

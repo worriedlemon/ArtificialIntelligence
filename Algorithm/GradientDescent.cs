@@ -27,28 +27,28 @@ namespace ArtificialIntelligenceIHW.Algorithm
 
             List<PointF> points = [ new((float)x, (float)y) ];
 
-            OnUpdateGraphics(points);
-
             (double dx, double dy) gradient()
             {
                 double fin = f.Evaluate(x, y);
                 return ((f.Evaluate(x + StepSize, y) - fin) / StepSize, (f.Evaluate(x, y + StepSize) - fin) / StepSize);
             }
 
-            for (int i = 0; i < MaxIterations; ++i)
+            for (int i = 0; i < MaxIterations && !Stop; ++i)
             {
-                (double dx, double dy) = gradient();
-                x -= DescentVelocity * dx;
-                y -= DescentVelocity * dy;
-                fr = f.Evaluate(x, y);
-
                 if (!SaveTrajectory)
                 {
                     points.Clear();
                 }
                 points.Add(new((float)x, (float)y));
                 OnUpdateGraphics(points);
+
+                (double dx, double dy) = gradient();
+                x -= DescentVelocity * dx;
+                y -= DescentVelocity * dy;
+                fr = f.Evaluate(x, y);
             }
+
+            OnUpdateGraphics(points, true);
         }
     }
 }

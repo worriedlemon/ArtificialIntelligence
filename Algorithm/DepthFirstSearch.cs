@@ -21,7 +21,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
             Stack<(int vertex, bool isProcessing)> stack = new();
             stack.Push((0, true));
 
-            while (stack.Count > 0)
+            while (stack.Count > 0 && !Stop)
             {
                 var (vertex, isProcessing) = stack.Pop();
 
@@ -66,12 +66,13 @@ namespace ArtificialIntelligenceIHW.Algorithm
                 solution.Add(current);
             }
 
+            length = 0;
             for (int i = 1; i < solution.Count; ++i)
             {
                 length += g[solution[i - 1], solution[i]];
             }
 
-            OnUpdateGraphics(solution);
+            OnUpdateGraphics(solution, true);
         }
 
         public string GetLongestPathResultString()

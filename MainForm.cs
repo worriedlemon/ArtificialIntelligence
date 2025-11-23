@@ -6,7 +6,7 @@ namespace ArtificialIntelligenceIHW
     public partial class MainForm : Form
     {
         private readonly List<AbstractAlgorithm> allAlgorithms;
-        private readonly Dictionary<string, (Type type, Action<object?> updateGraphics)> problems;
+        private readonly Dictionary<string, (Type type, Action<object?, bool> updateGraphics)> problems;
 
         // Test Function
         private readonly Function function = new(
@@ -74,22 +74,22 @@ namespace ArtificialIntelligenceIHW
                     new BatInspiredAlgorithm(),
                     new DepthFirstSearch(),
                     new GreedyColoring(),
+                    new MemeticAlgorithm(),
+                    new BacteriaForaging(),
                 ];
 
             // Adding problems is also easy, but there are three steps to add a working one:
-            // 1) Create function to update graphics (you can use empty lambda)
+            // 1) Create function to update graphics
             // 2) Create new interface and wrapper in ProblemWrapper.cs
-            // 3) Create algorithm, that uses this interface or extend existing one, and add it
-            List<(Type type, Action<object?> updateGraphics)> allProblems = [
+            // 3) Create algorithm, that uses this interface or extend existing one, and add a pair here
+            List<(Type type, Action<object?, bool> updateGraphics)> allProblems = [
                 (typeof(IFunctionOptimization), FunctionProblemUpdateGraphics),
                 (typeof(IGraphColoring), GraphColoringProblemUpdateGraphics),
                 (typeof(ILongestPath), LongestPathProblemUpdateGraphics),
             ];
 
-            // Some magic
-            problems = allProblems
-                .Select((val) => KeyValuePair.Create(Utility.AddSpaces(val.type.Name[1..]), val))
-                .ToDictionary();
+            // Some magic to get it work
+            problems = allProblems.Select((val) => KeyValuePair.Create(Utility.AddSpaces(val.type.Name[1..]), val)).ToDictionary();
 
             graphics = mainPanel.CreateGraphics();
 
@@ -109,7 +109,7 @@ namespace ArtificialIntelligenceIHW
             algorithmComboBox.Items.Clear();
             algorithmComboBox.Items.AddRange(allAlgorithms.Where(x =>
                 x.GetType().GetInterfaces().Contains(currentTask.type)).ToArray());
-            currentTask.updateGraphics(null);
+            currentTask.updateGraphics(null, false);
 
             if (algorithmComboBox.Items.Count == 0)
             {
@@ -122,7 +122,7 @@ namespace ArtificialIntelligenceIHW
                 algorithmComboBox.SelectedIndex = 0;
                 algorithmComboBox.Enabled = true;
             }
-            runButton.Enabled = algorithmComboBox.Enabled;
+            runStopButton.Enabled = algorithmComboBox.Enabled;
         }
 
         void OnAlgorithmChange(object? sender, EventArgs? e)
@@ -164,26 +164,26 @@ namespace ArtificialIntelligenceIHW
                 };
 
                 Control control;
-                if (t.IsEnum)
+                if (t.IsEnum) // for enums it is good to use ComboBox
                 {
                     ComboBox cb = new();
-                    cb.Items.AddRange(t.GetEnumNames().Select(Utility.AddSpaces).ToArray());
+                    cb.Items.AddRange(t.GetEnumNames());
                     cb.DataBindings.Add(nameof(cb.Text), currentAlgorithm, name);
                     cb.SelectedIndex = 0;
                     control = cb;
                 }
-                else if (t.Equals(typeof(bool)))
+                else if (t.Equals(typeof(bool))) // for bool we create a CheckBox
                 {
                     CheckBox cb = new()
                     {
-                        Text = "Checked",
+                        Text = "Enabled",
                         CheckAlign = ContentAlignment.TopLeft,
-                        TextAlign = ContentAlignment.TopLeft,
+                        TextAlign = ContentAlignment.TopCenter,
                     };
                     cb.DataBindings.Add(nameof(cb.Checked), currentAlgorithm, name);
                     control = cb;
                 }
-                else
+                else // otherwise - TextBox
                 {
                     control = new TextBox();
                     control.DataBindings.Add(nameof(control.Text), currentAlgorithm, name);
@@ -209,7 +209,16 @@ namespace ArtificialIntelligenceIHW
 
         async void OnRun(object? sender, EventArgs? e)
         {
-            runButton.Enabled = false;
+            void stopRun(object? sender, EventArgs? e)
+            {
+                currentAlgorithm.Stop = true;
+            }
+
+            currentAlgorithm.Stop = false;
+            runStopButton.Click += stopRun;
+            runStopButton.Click -= OnRun;
+            runStopButton.Text = "Stop";
+
             try
             {
                 IProblemWrapper pw = new ProblemWrapperFactory(
@@ -225,65 +234,66 @@ namespace ArtificialIntelligenceIHW
             {
                 MessageBox.Show($"Error occurred during Run: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            runButton.Enabled = true;
+
+            runStopButton.Click -= stopRun;
+            runStopButton.Click += OnRun;
+            runStopButton.Text = "Run";
         }
 
-        void FunctionProblemUpdateGraphics(object? data)
+        void FunctionProblemUpdateGraphics(object? data, bool forced)
         {
+            if (data is null)
+            {
+                mainPanel.Image = functionPlot;
+                return;
+            }
+            if (drawDelay.Value == 0 && !forced) return;
+
             graphics = mainPanel.CreateGraphics();
             graphics.DrawImage(functionPlot, 0, 0, mainPanel.Width, mainPanel.Height);
 
-            if (data is not null)
+            Image pointsImage = new Bitmap(mainPanel.Width, mainPanel.Height);
+            Graphics g = Graphics.FromImage(pointsImage);
+
+            var realData = (List<PointF>)data;
+
+            foreach (PointF p in realData)
             {
-                Image pointsImage = new Bitmap(mainPanel.Width, mainPanel.Height);
-                Graphics g = Graphics.FromImage(pointsImage);
-
-                var realData = (List<PointF>)data;
-
-                foreach (PointF p in realData)
-                {
-                    Plotter.DrawPoint(g, p, function.Bounds, pointsImage.Size, 8);
-                }
-                graphics.DrawImage(pointsImage, 0, 0, mainPanel.Width, mainPanel.Height);
-
-                Thread.Sleep((int)drawDelay.Value);
+                Plotter.DrawPoint(g, p, function.Bounds, pointsImage.Size, 8);
             }
-            else
-            {
-                mainPanel.Image = functionPlot;
-            }
+            graphics.DrawImage(pointsImage, 0, 0, mainPanel.Width, mainPanel.Height);
+
+            Thread.Sleep((int)drawDelay.Value);
         }
 
-        void LongestPathProblemUpdateGraphics(object? data)
+        void LongestPathProblemUpdateGraphics(object? data, bool forced)
         {
-            DrawGraph(acyclicGraph);
-
-            if (data is not null)
-            {
-                acyclicGraph.DrawPath(graphics, (List<int>)data);
-
-                Thread.Sleep((int)drawDelay.Value);
-            }
-            else
+            if (data is null)
             {
                 mainPanel.Image = acyclicGraphImage;
+                return;
             }
+            if (drawDelay.Value == 0 && !forced) return;
+
+            DrawGraph(acyclicGraph);
+            acyclicGraph.DrawPath(graphics, (List<int>)data);
+
+            Thread.Sleep((int)drawDelay.Value);
         }
 
-        void GraphColoringProblemUpdateGraphics(object? data)
+        void GraphColoringProblemUpdateGraphics(object? data, bool forced)
         {
-            DrawGraph(graph);
-
-            if (data is not null)
-            {
-                graph.ColorVertexes(graphics, (List<int>)data);
-
-                Thread.Sleep((int)drawDelay.Value);
-            }
-            else
+            if (data is null)
             {
                 mainPanel.Image = graphImage;
+                return;
             }
+            if (drawDelay.Value == 0 && !forced) return;
+
+            DrawGraph(graph);
+            graph.ColorVertexes(graphics, (List<int>)data);
+
+            Thread.Sleep((int)drawDelay.Value);
         }
 
         void DrawGraph(in DisplayableGraph g)
