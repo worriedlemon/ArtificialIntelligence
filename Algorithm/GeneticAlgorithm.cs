@@ -50,7 +50,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
                         int crp = rand.Next(g.VertexCount);
                         for (int k = 0; k < g.VertexCount; k++)
                         {
-                            child.Add(agents[k < crp ? p1 : p2].Values[i]);
+                            child.Add(agents[k < crp ? p1 : p2].Values[k]);
                         }
                     }
                     else
@@ -72,9 +72,6 @@ namespace ArtificialIntelligenceIHW.Algorithm
                 }
                 
                 best = (agents = gen).MinBy(b => b.Fitness)!;
-
-                // No need to continue
-                if (best.Fitness == 0) break;
             }
 
             // Best
@@ -84,14 +81,14 @@ namespace ArtificialIntelligenceIHW.Algorithm
             OnUpdateGraphics(best.Values, true);
         }
 
-        private double CalculateFitness(Graph g, List<int> colors)
+        private int CalculateFitness(Graph g, List<int> colors)
         {
-            double fitness = 0;
+            int fitness = 0;
             for (int i = 0; i < g.VertexCount; ++i)
             {
                 fitness += VertexConflicts(g, i, colors);
             }
-            return fitness;
+            return fitness + colors.Distinct().Count();
         }
 
         private int VertexConflicts(Graph g, int v, List<int> colors)

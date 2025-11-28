@@ -1,5 +1,6 @@
 ﻿using ArtificialIntelligenceIHW.Algorithm;
 using ArtificialIntelligenceIHW.Problem;
+using static ArtificialIntelligenceIHW.Resources.GraphStrings;
 
 namespace ArtificialIntelligenceIHW
 {
@@ -11,49 +12,15 @@ namespace ArtificialIntelligenceIHW
         // Test Function
         private readonly Function function = new(
             (double x, double y) => 100 * (x * x - y) * (x * x - y) + (1 - x) * (1 - x),
-            new(-6f, -6f, 12f, 12f)
+            //(double x1, double x2, double x3, double x4, double x5, double x6) => x1*x1 + x2*x2 + x3*x3 + x4*x4 + x5*x5 + x6*x6,
+            (-6.0, 6.0)
             );
 
         // Test graph
-        private readonly DisplayableGraph acyclicGraph = GraphParser.LoadFromString("""
-            A,B,C,D,E,F,G
-
-            0,80
-            50,150
-            120,150
-            170,80
-            120,10
-            50,10
-            85,80
-
-            -,1,-,-,-,7,3
-            -,-,3,-,-,-,-
-            -,-,-,2,-,-,-
-            -,-,-,-,-,-,-
-            -,-,-,4,-,-,-
-            -,-,-,-,1,-,4
-            -,1,-,-,2,-,-
-            """);
+        private readonly DisplayableGraph acyclicGraph = GraphParser.LoadFromFile("../../../Resources/acyclicGraph20.txt");
 
         // Test graph 2
-        private readonly DisplayableGraph graph = GraphParser.LoadFromString("""
-            A,B,C,D,E,F
-
-            0,80
-            50,150
-            120,150
-            170,80
-            120,10
-            50,10
-
-            Unoriented
-            -,1,3,7,7,7
-            1,-,1,1,2,2
-            3,1,-,2,3,3
-            7,1,2,-,1,4
-            7,2,3,1,-,1
-            7,2,3,4,1,-
-            """);
+        private readonly DisplayableGraph graph = GraphParser.LoadFromFile("../../../Resources/unorientedGraph10.txt");
 
         private AbstractAlgorithm currentAlgorithm => (AbstractAlgorithm)algorithmComboBox.SelectedItem!;
 
@@ -259,7 +226,12 @@ namespace ArtificialIntelligenceIHW
 
             foreach (PointF p in realData)
             {
-                Plotter.DrawPoint(g, p, function.Bounds, pointsImage.Size, 8);
+                Plotter.DrawPoint(g, p, new(
+                    (float)function.Bounds.min,
+                    (float)function.Bounds.min,
+                    (float)function.Bounds.max - (float)function.Bounds.min,
+                    (float)function.Bounds.max - (float)function.Bounds.min
+                    ), pointsImage.Size, 8);
             }
             graphics.DrawImage(pointsImage, 0, 0, mainPanel.Width, mainPanel.Height);
 

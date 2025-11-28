@@ -14,9 +14,9 @@ namespace ArtificialIntelligenceIHW.Algorithm
         [AlgorithmOption] public double CrossingoverPossibility { get; set; } = 0.5;
         [AlgorithmOption] public double MutationPossibility { get; set; } = 0.15;
 
-
         private List<int> colors = new();
         int totalColors = 0;
+        
         Random rand = new();
 
         // Bacteria, fitness equals to vertex conflicts
@@ -73,9 +73,6 @@ namespace ArtificialIntelligenceIHW.Algorithm
                 }
 
                 best = bacteria.MinBy(b => b.Fitness)!;
-
-                // No need to continue
-                if (best.Fitness == 0) break;
             }
 
             // Best
@@ -160,7 +157,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
             {
                 fitness += VertexConflicts(g, i, colors);
             }
-            return fitness;
+            return fitness + colors.Distinct().Count();
         }
 
         private int VertexConflicts(Graph g, int v, List<int> colors)

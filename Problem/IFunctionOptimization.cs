@@ -2,28 +2,49 @@
 {
     public class Function
     {
-        Func<double, double, double> callable;
-        public RectangleF Bounds { get; }
+        Delegate callable;
+        public (double min, double max) Bounds { get; }
+        int dim;
 
-        public Function(Func<double, double, double> callable, RectangleF bounds)
+        public Function(Delegate callable, (double min, double max) bounds)
         {
+            if (callable.Method.ReturnType != typeof(double))
+            {
+                throw new InvalidCastException("Callable does not return fixed point value, expected double");
+            }
             this.callable = callable;
             Bounds = bounds;
+            dim = callable.Method.GetParameters().Length;
         }
 
-        public double Evaluate(double x, double y) => callable.Invoke(x, y);
+        public double Evaluate(params double[] xs)
+        {
+            object[] values = new object[dim];
+            int actDim = Math.Min(xs.Length, dim);
+            for (int i = 0; i < actDim; i++)
+            {
+                values[i] = xs[i];
+            }
+            return (double)callable?.Method.Invoke(callable.Target, values)!;
+        }
 
         public List<double> GetPoint(in Random rand)
         {
-            double x = rand.NextDouble() * Bounds.Width + Bounds.Left;
-            double y = rand.NextDouble() * Bounds.Height + Bounds.Top;
-            return [x, y];
+            List<double> values = new();
+            for (int i = 0; i < dim; ++i)
+            {
+                values.Add(rand.NextDouble() * (Bounds.max - Bounds.min) + Bounds.min);
+            }
+            return values;
         }
 
         public void Clamp(List<double> value)
         {
-            value[0] = Math.Clamp(value[0], Bounds.Left, Bounds.Left + Bounds.Width);
-            value[1] = Math.Clamp(value[1], Bounds.Top, Bounds.Top + Bounds.Height);
+            int actDim = Math.Min(value.Count, dim);
+            for (int i = 0; i < actDim; ++i)
+            {
+                value[i] = Math.Clamp(value[i], Bounds.min, Bounds.max);
+            }
         }
     }
 

@@ -32,7 +32,7 @@ namespace ArtificialIntelligenceIHW.Algorithm
 
             public Bat(in Random rnd, in Function f)
             {
-                Position = [f.Bounds.Left + rnd.NextDouble() * f.Bounds.Width, f.Bounds.Top + rnd.NextDouble() * f.Bounds.Height];
+                Position = [f.Bounds.min + rnd.NextDouble() * (f.Bounds.max - f.Bounds.min), f.Bounds.min + rnd.NextDouble() * (f.Bounds.max - f.Bounds.min)];
                 Velocity = [0, 0];
                 Fitness = f.Evaluate(Position[0], Position[1]);
             }

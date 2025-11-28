@@ -83,10 +83,10 @@ namespace ArtificialIntelligenceIHW
 
             for (int i = 0; i < segments; i++)
             {
-                double tempX = f.Bounds.X + f.Bounds.Width * i / (segments - 1);
+                double tempX = f.Bounds.min + (f.Bounds.max - f.Bounds.min) * i / (segments - 1);
                 for (int j = 0; j < segments; j++)
                 {
-                    double tempY = f.Bounds.Y + f.Bounds.Height * j / (segments - 1);
+                    double tempY = f.Bounds.min + (f.Bounds.max - f.Bounds.min) * j / (segments - 1);
                     values[i, j] = f.Evaluate(tempX, tempY);
 
                     if (values[i, j] > maxValue) maxValue = values[i, j];
